@@ -105,11 +105,28 @@ def gradDescent2Input(fn,df0_func,df1_func,num_iters,x0_start,x1_start,alpha):
     x1=x1_start
     X=np.array([x0,x1]); F = np.array([fn(x0, x1)], dtype=float)
     for k in range(num_iters):
+        print("Iter = " + str(k))
         step0 = alpha*df0_func(x0)
         step1 = alpha*df1_func(x1)
         x0 = x0 - step0
         x1 = x1 - step1
         X=np.append(X,[x0,x1],axis=0); F = np.append(F, fn(x0, x1))
+    return (X,F)
+
+def gradDescent2InputFast(fn,df0_func,df1_func,num_iters,x0_start,x1_start,alpha):
+    x0=x0_start
+    x1=x1_start
+    X=np.zeros((num_iters + 1, 2))
+    F=np.zeros(num_iters + 1)
+    X[0]=[x0,x1]; F[0] = fn(x0, x1)
+    for k in range(num_iters):
+        print("Iter = " + str(k))
+        step0 = alpha*df0_func(x0,x1)
+        step1 = alpha*df1_func(x0,x1)
+        x0 = x0 - step0
+        x1 = x1 - step1
+        val = fn(x0, x1)
+        X[k+1] = [x0,x1]; F[k + 1] = float(fn(x0, x1))
     return (X,F)
 
 (X1, F1) = gradDescent2Input(q2f_func,df0_func,df1_func,num_iters,x0_start=1.5,x1_start=1.5,alpha=0.05)
@@ -243,6 +260,67 @@ num_iters = 100
 x1_meshed, x2_meshed = np.meshgrid(x1_vals, x2_vals)
 y_values1 = q4fx_func(x1_meshed, x2_meshed, 1)
 y_values2 = q4fx_func(x1_meshed, x2_meshed, 4)
-plt.contour(x1_meshed, x2_meshed, y_values1, colors='blue')
-plt.contour(x1_meshed, x2_meshed, y_values2, colors='red')
+plt.contour(x1_meshed, x2_meshed, y_values1, colors='blue', label='γ = 1')
+plt.contour(x1_meshed, x2_meshed, y_values2, colors='red', label='γ = 4')
+plt.legend()
+plt.show()
+
+num_iters = len(X1) + 1
+plt.plot(list(range(1, num_iters)), X1, color = 'blue', label='γ = 1')
+plt.plot(list(range(1, num_iters)), X2, color = 'red', label='γ = 4')
+plt.legend()
+plt.show()
+
+num_iters = len(F1) + 1
+plt.plot(list(range(1, num_iters)), F1, color = 'blue', label='γ = 1')
+plt.plot(list(range(1, num_iters)), F2, color = 'red', label='γ = 4')
+plt.legend()
+plt.show()
+
+q4f2 = (1 - x1_sym)**2 + 100*(x2_sym - x1_sym**2)**2
+q4f2_df1 = sp.diff(q4f2, x1_sym)
+q4f2_df2 = sp.diff(q4f2, x2_sym)
+
+q4f2_func = sp.lambdify((x1_sym, x2_sym), q4f2, 'numpy')
+q4f2_df1_func = sp.lambdify((x1_sym, x2_sym), q4f2_df1, 'numpy')
+q4f2_df2_func = sp.lambdify((x1_sym, x2_sym), q4f2_df2, 'numpy')
+
+x1_vals = np.linspace(-2, 2, 100)
+x2_vals = np.linspace(-1, 3, 100)
+num_iters = 100
+x1_meshed, x2_meshed = np.meshgrid(x1_vals, x2_vals)
+y_values = q4f2_func(x1_meshed, x2_meshed)
+plt.contour(x1_meshed, x2_meshed, y_values, colors='blue')
+plt.show()
+
+num_iters = 2000
+(X1, F1) = gradDescent2InputFast(q4f2_func,q4f2_df1_func,q4f2_df2_func,num_iters,x0_start=-1.25,x1_start=0.5,alpha=0.001)
+(X2, F2) = gradDescent2InputFast(q4f2_func,q4f2_df1_func,q4f2_df2_func,num_iters,x0_start=-1.25,x1_start=0.5,alpha=0.005)
+
+num_iters = len(X1) + 1
+plt.plot(list(range(1, num_iters)), X1, color = 'blue', label='γ = 1')
+plt.plot(list(range(1, num_iters)), X2, color = 'red', label='γ = 4')
+plt.legend()
+plt.show()
+
+num_iters = len(F1) + 1
+plt.plot(list(range(1, num_iters)), F1, color = 'blue', label='γ = 1')
+plt.plot(list(range(1, num_iters)), F2, color = 'red', label='γ = 4')
+plt.legend()
+plt.show()
+
+plt.contour(x1_meshed, x2_meshed, y_values)
+x1s_1 = []
+x2s_1 = []
+for x1 in X1:
+    x1s_1.append(x1[0])
+    x2s_1.append(x1[1])
+x1s_2 = []
+x2s_2 = []
+for x1 in X2:
+    x1s_2.append(x1[0])
+    x2s_2.append(x1[1])
+plt.plot(x1s_1, x2s_1, color = 'green', label='γ = 1')
+plt.plot(x1s_2, x2s_2, color = 'red', label='γ = 4')
+plt.legend()
 plt.show()
