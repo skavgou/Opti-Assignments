@@ -9,8 +9,9 @@ decimal.getcontext().prec = 100
 x = sp.symbols('x')
 fx = x**4
 dfdx_of_fx = sp.diff(fx, x)
-df_func = sp.lambdify(x, dfdx_of_fx, 'numpy')
+print(dfdx_of_fx)
 
+df_func = sp.lambdify(x, dfdx_of_fx, 'numpy')
 x_el_of = np.linspace(-2, 2, 100)
 exact_points = df_func(x_el_of)
 
@@ -66,7 +67,7 @@ def gradDescent(fn,num_iters,x0,alpha):
 (X3, F3) = gradDescent(my_fun,num_iters,x0=1,alpha=1.2)
 print(F1)
 
-num_iters+=2
+num_iters = len(X1) + 1
 plt.plot(list(range(1, num_iters)), X1, color = 'blue', label='Aplha = 0.05')
 plt.plot(list(range(1, num_iters)), X2, color = 'green', label='Aplha = 0.5')
 #plt.plot(list(range(1, num_iters)), X3, color = 'red', label='Aplha = 1.2')
@@ -105,7 +106,7 @@ def gradDescent2Input(fn,df0_func,df1_func,num_iters,x0_start,x1_start,alpha):
     x1=x1_start
     X=np.array([x0,x1]); F = np.array([fn(x0, x1)], dtype=float)
     for k in range(num_iters):
-        print("Iter = " + str(k))
+        #print("Iter = " + str(k))
         step0 = alpha*df0_func(x0)
         step1 = alpha*df1_func(x1)
         x0 = x0 - step0
@@ -120,7 +121,7 @@ def gradDescent2InputFast(fn,df0_func,df1_func,num_iters,x0_start,x1_start,alpha
     F=np.zeros(num_iters + 1)
     X[0]=[x0,x1]; F[0] = fn(x0, x1)
     for k in range(num_iters):
-        print("Iter = " + str(k))
+        #print("Iter = " + str(k))
         step0 = alpha*df0_func(x0,x1)
         step1 = alpha*df1_func(x0,x1)
         x0 = x0 - step0
@@ -231,6 +232,22 @@ plt.plot(list(range(1, num_iters)), F1, color = 'blue', label='γ = 0.5')
 plt.plot(list(range(1, num_iters)), F2, color = 'red', label='γ = 1')
 plt.plot(list(range(1, num_iters)), F3, color = 'orange', label='γ = 2')
 plt.plot(list(range(1, num_iters)), F4, color = 'green', label='γ = 5')
+plt.legend()
+plt.show()
+
+# Q3 part 3
+
+q3fx3 = sp.Abs(x)
+dfq3fx3 = sp.sign(x)
+print(dfq3fx3)
+q3fx3_func = sp.lambdify(x, q3fx3, 'numpy')
+dfq3fx3_func = sp.lambdify(x, dfq3fx3, 'numpy')
+print(dfq3fx3_func(0))
+
+num_iters = 60
+(X1, F1) = gradDescent1Input(q3fx3_func, dfq3fx3_func,num_iters,x0=1,alpha=0.1)
+num_iters = len(X1) + 1
+plt.plot(list(range(1, num_iters)), X1, color = 'blue', label='γ = 5')
 plt.legend()
 plt.show()
 
