@@ -88,7 +88,10 @@ x0_vals = np.linspace(-2, 2, 100)
 num_iters = 100
 x0_meshed, x1_meshed = np.meshgrid(x0_vals, x1_vals)
 y_values = q2_function(x0_meshed, x1_meshed)
-plt.contour(x0_meshed, x1_meshed, y_values, colors='blue')
+plt.contour(x0_meshed, x1_meshed, y_values)
+plt.title("Q2 I Contour plot")
+plt.xlabel("x0")
+plt.ylabel("x1")
 plt.show()
 
 x0_sym = sp.symbols('x0')
@@ -195,12 +198,20 @@ plt.plot(list(range(1, num_iters)), X1, color = 'blue', label='Aplha = 0.05')
 plt.plot(list(range(1, num_iters)), X2, color = 'red', label='Aplha = 0.01')
 plt.plot(list(range(1, num_iters)), X3, color = 'orange', label='Aplha = 1.01')
 plt.legend()
+plt.title("xk vs Iteration")
+plt.xlabel("Iterations")
+plt.ylabel("xk")
+plt.yscale("log")
 plt.show()
 
 plt.plot(list(range(1, num_iters)), F1, color = 'blue', label='Aplha = 0.05')
 plt.plot(list(range(1, num_iters)), F2, color = 'red', label='Aplha = 0.01')
 plt.plot(list(range(1, num_iters)), F3, color = 'orange', label='Aplha = 1.01')
 plt.legend()
+plt.title("f(xk) vs Iteration")
+plt.xlabel("Iterations")
+plt.ylabel("f(xk)")
+plt.yscale("log")
 plt.show()
 
 γ = sp.symbols('γ')
@@ -217,15 +228,15 @@ dfq3fx2_4 = sp.diff(q3fx2_4, x)
 q3fx2_func = sp.lambdify(x, q3fx2, 'numpy')
 dfq3fx2_func = sp.lambdify(x, dfq3fx2, 'numpy')
 
-num_iters = 100
+num_iters = 200
 (X1, F1) = gradDescent1Input(sp.lambdify(x, q3fx2_1, 'numpy'),
-                             sp.lambdify(x, dfq3fx2_1, 'numpy'),num_iters,x0=1,alpha=0.05)
+                             sp.lambdify(x, dfq3fx2_1, 'numpy'),num_iters,x0=1,alpha=0.1)
 (X2, F2) = gradDescent1Input(sp.lambdify(x, q3fx2_2, 'numpy'),
-                             sp.lambdify(x, dfq3fx2_2, 'numpy'),num_iters,x0=1,alpha=0.05)
+                             sp.lambdify(x, dfq3fx2_2, 'numpy'),num_iters,x0=1,alpha=0.1)
 (X3, F3) = gradDescent1Input(sp.lambdify(x, q3fx2_3, 'numpy'),
-                             sp.lambdify(x, dfq3fx2_3, 'numpy'),num_iters,x0=1,alpha=0.05)
+                             sp.lambdify(x, dfq3fx2_3, 'numpy'),num_iters,x0=1,alpha=0.1)
 (X4, F4) = gradDescent1Input(sp.lambdify(x, q3fx2_4, 'numpy'),
-                             sp.lambdify(x, dfq3fx2_4, 'numpy'),num_iters,x0=1,alpha=0.05)
+                             sp.lambdify(x, dfq3fx2_4, 'numpy'),num_iters,x0=1,alpha=0.1)
 
 num_iters = len(X1) + 1
 plt.plot(list(range(1, num_iters)), F1, color = 'blue', label='γ = 0.5')
@@ -233,21 +244,33 @@ plt.plot(list(range(1, num_iters)), F2, color = 'red', label='γ = 1')
 plt.plot(list(range(1, num_iters)), F3, color = 'orange', label='γ = 2')
 plt.plot(list(range(1, num_iters)), F4, color = 'green', label='γ = 5')
 plt.legend()
+plt.title("f(xk) vs Iteration")
+plt.xlabel("Iterations")
+plt.ylabel("f(xk)")
+plt.yscale("log")
 plt.show()
 
 # Q3 part 3
 
 q3fx3 = sp.Abs(x)
 dfq3fx3 = sp.sign(x)
-print(dfq3fx3)
 q3fx3_func = sp.lambdify(x, q3fx3, 'numpy')
 dfq3fx3_func = sp.lambdify(x, dfq3fx3, 'numpy')
-print(dfq3fx3_func(0))
 
 num_iters = 60
 (X1, F1) = gradDescent1Input(q3fx3_func, dfq3fx3_func,num_iters,x0=1,alpha=0.1)
 num_iters = len(X1) + 1
 plt.plot(list(range(1, num_iters)), X1, color = 'blue', label='γ = 5')
+plt.title("xk vs Iteration")
+plt.xlabel("Iterations")
+plt.ylabel("xk")
+plt.legend()
+plt.show()
+
+plt.plot(list(range(1, num_iters)), F1, color = 'blue', label='γ = 5')
+plt.title("f(xk) vs Iteration")
+plt.xlabel("Iterations")
+plt.ylabel("f(xk)")
 plt.legend()
 plt.show()
 
@@ -277,8 +300,16 @@ num_iters = 100
 x1_meshed, x2_meshed = np.meshgrid(x1_vals, x2_vals)
 y_values1 = q4fx_func(x1_meshed, x2_meshed, 1)
 y_values2 = q4fx_func(x1_meshed, x2_meshed, 4)
-plt.contour(x1_meshed, x2_meshed, y_values1, colors='blue', label='γ = 1')
-plt.contour(x1_meshed, x2_meshed, y_values2, colors='red', label='γ = 4')
+plt.contour(x1_meshed, x2_meshed, y_values1, label='γ = 1')
+# plt.title("Q2 I Contour plot - γ = 1")
+# plt.xlabel("x1")
+# plt.ylabel("x2")
+# plt.legend()
+# plt.show()
+plt.contour(x1_meshed, x2_meshed, y_values2, label='γ = 4')
+plt.title("Q2 I Contour plot - γ = 4")
+plt.xlabel("x1")
+plt.ylabel("x2")
 plt.legend()
 plt.show()
 
