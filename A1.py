@@ -33,12 +33,14 @@ for delta in deltas:
 
 plt.plot(x_el_of, exact_points, color='blue', label='Exact')
 plt.plot(x_el_of, forward_finite_approx, color='red', label='Forward')
+plt.title('Exact derivative vs forward finite-difference approximation')
 plt.xlabel('x')
-plt.ylabel('f(x)')
+plt.ylabel('dfdx(x)')
 plt.legend()
 plt.show()
 
 plt.plot(deltas, mean_absolute_errors, color='blue', label='Exact')
+plt.title('Mean absolute error')
 plt.xlabel('delta')
 plt.ylabel('MAE')
 plt.show()
@@ -70,28 +72,20 @@ print(F1)
 num_iters = len(X1) + 1
 plt.plot(list(range(1, num_iters)), X1, color = 'blue', label='Aplha = 0.05')
 plt.plot(list(range(1, num_iters)), X2, color = 'green', label='Aplha = 0.5')
-#plt.plot(list(range(1, num_iters)), X3, color = 'red', label='Aplha = 1.2')
+plt.plot(list(range(1, num_iters)), X3, color = 'red', label='Aplha = 1.2')
+plt.title("xk vs iteration")
+plt.xlabel("xk")
+plt.ylabel("iteration")
 plt.legend()
 plt.show()
 
 plt.plot(list(range(1, num_iters)), F1, color = 'blue', label='Aplha = 0.05')
 plt.plot(list(range(1, num_iters)), F2, color = 'green', label='Aplha = 0.5')
-#plt.plot(list(range(1, num_iters)), F3, color = 'red', label='Aplha = 1.2')
+plt.plot(list(range(1, num_iters)), F3, color = 'red', label='Aplha = 1.2')
+plt.title("f(xk) vs iteration")
+plt.xlabel("f(xk)")
+plt.ylabel("iteration")
 plt.legend()
-plt.show()
-
-def q2_function(x0, x1):
-    return (x0**2 + 10*x1**2) / 2
-
-x1_vals = np.linspace(-2, 2, 100)
-x0_vals = np.linspace(-2, 2, 100)
-num_iters = 100
-x0_meshed, x1_meshed = np.meshgrid(x0_vals, x1_vals)
-y_values = q2_function(x0_meshed, x1_meshed)
-plt.contour(x0_meshed, x1_meshed, y_values)
-plt.title("Q2 I Contour plot")
-plt.xlabel("x0")
-plt.ylabel("x1")
 plt.show()
 
 x0_sym = sp.symbols('x0')
@@ -103,6 +97,16 @@ df1 = sp.diff(q2f, x1_sym)
 df0_func = sp.lambdify(x0_sym, df0, 'numpy')
 df1_func = sp.lambdify(x1_sym, df1, 'numpy')
 
+x1_vals = np.linspace(-2, 2, 100)
+x0_vals = np.linspace(-2, 2, 100)
+num_iters = 100
+x0_meshed, x1_meshed = np.meshgrid(x0_vals, x1_vals)
+y_values = q2f_func(x0_meshed, x1_meshed)
+plt.contour(x0_meshed, x1_meshed, y_values)
+plt.title("Q2 I Contour plot")
+plt.xlabel("x0")
+plt.ylabel("x1")
+plt.show()
 
 def gradDescent2Input(fn,df0_func,df1_func,num_iters,x0_start,x1_start,alpha):
     x0=x0_start
@@ -115,6 +119,21 @@ def gradDescent2Input(fn,df0_func,df1_func,num_iters,x0_start,x1_start,alpha):
         x0 = x0 - step0
         x1 = x1 - step1
         X=np.append(X,[x0,x1],axis=0); F = np.append(F, fn(x0, x1))
+    return (X,F)
+
+def gradDescent2InputForOverlay(fn,df0_func,df1_func,num_iters,x0_start,x1_start,alpha):
+    x0=x0_start
+    x1=x1_start
+    X = np.zeros((num_iters + 1, 2))
+    F = np.zeros(num_iters + 1)
+    X[0]=[x0,x1]; F[0] = fn(x0, x1)
+    for k in range(num_iters):
+        #print("Iter = " + str(k))
+        step0 = alpha*df0_func(x0)
+        step1 = alpha*df1_func(x1)
+        x0 = x0 - step0
+        x1 = x1 - step1
+        X[k+1] = [x0,x1]; F[k + 1] = float(fn(x0, x1))
     return (X,F)
 
 def gradDescent2InputFast(fn,df0_func,df1_func,num_iters,x0_start,x1_start,alpha):
@@ -140,11 +159,17 @@ num_iters = len(X1) + 1
 plt.plot(list(range(1, num_iters)), X1, color = 'blue', label='Aplha = 0.05')
 plt.plot(list(range(1, num_iters)), X2, color = 'red', label='Aplha = 0.2')
 plt.legend()
+plt.title("xk vs iteration")
+plt.xlabel("xk")
+plt.ylabel("iteration")
 plt.show()
 num_iters = len(F1) + 1
 plt.plot(list(range(1, num_iters)), F1, color = 'blue', label='Aplha = 0.05')
 plt.plot(list(range(1, num_iters)), F2, color = 'red', label='Aplha = 0.2')
 plt.legend()
+plt.title("f(xk) vs iteration")
+plt.xlabel("f(xk)")
+plt.ylabel("iteration")
 plt.show()
 
 q2f2 = x**4 - 2*x**2 + 0.1*x
@@ -153,8 +178,12 @@ q2f2_func = sp.lambdify(x, q2f2, 'numpy')
 dfq2f2_func = sp.lambdify(x, dfq2f2, 'numpy')
 x_vals = np.linspace(-2, 2, 100)
 y_vals = q2f2_func(x_vals)
-plt.plot(x_vals, y_vals, color = 'blue', label='Aplha = 0.05')
+plt.plot(x_vals, y_vals, color = 'blue')
+plt.title("x^4 - 2x^2 + 0.1x")
+plt.xlabel("x")
+plt.ylabel("y")
 plt.legend()
+
 plt.show()
 
 def gradDescent1Input(fn,fndf,num_iters,x0,alpha):
@@ -175,10 +204,16 @@ num_iters = len(X1) + 1
 plt.plot(list(range(1, num_iters)), X1, color = 'blue', label='Aplha = 0.05')
 plt.plot(list(range(1, num_iters)), X2, color = 'red', label='Aplha = 0.2')
 plt.legend()
+plt.title("xk vs iteration")
+plt.ylabel("xk")
+plt.xlabel("iteration")
 plt.show()
 plt.plot(list(range(1, num_iters)), F1, color = 'blue', label='Aplha = 0.05')
 plt.plot(list(range(1, num_iters)), F2, color = 'red', label='Aplha = 0.2')
 plt.legend()
+plt.title("f(xk) vs iteration")
+plt.ylabel("f(xk)")
+plt.xlabel("iteration")
 plt.show()
 
 # Question 3
@@ -290,10 +325,6 @@ dfq4fx_x2_1_func = sp.lambdify(x2_sym, dfq4fx_x2_1, 'numpy')
 dfq4fx_x1_2_func = sp.lambdify(x1_sym, dfq4fx_x1_2, 'numpy')
 dfq4fx_x2_2_func = sp.lambdify(x2_sym, dfq4fx_x2_2, 'numpy')
 
-num_iters = 100
-(X1, F1) = gradDescent2Input(q4fx_func1,dfq4fx_x1_1_func,dfq4fx_x2_1_func,num_iters,x0_start=1,x1_start=1,alpha=0.1)
-(X2, F2) = gradDescent2Input(q4fx_func2,dfq4fx_x1_2_func,dfq4fx_x2_2_func,num_iters,x0_start=1,x1_start=1,alpha=0.1)
-
 x1_vals = np.linspace(-1.5, 1.5, 100)
 x2_vals = np.linspace(-1.5, 1.5, 100)
 num_iters = 100
@@ -301,27 +332,55 @@ x1_meshed, x2_meshed = np.meshgrid(x1_vals, x2_vals)
 y_values1 = q4fx_func(x1_meshed, x2_meshed, 1)
 y_values2 = q4fx_func(x1_meshed, x2_meshed, 4)
 plt.contour(x1_meshed, x2_meshed, y_values1, label='γ = 1')
-# plt.title("Q2 I Contour plot - γ = 1")
-# plt.xlabel("x1")
-# plt.ylabel("x2")
-# plt.legend()
-# plt.show()
+plt.title("Q4 I Contour plot - γ = 1")
+plt.xlabel("x1")
+plt.ylabel("x2")
+plt.legend()
+plt.show()
 plt.contour(x1_meshed, x2_meshed, y_values2, label='γ = 4')
-plt.title("Q2 I Contour plot - γ = 4")
+plt.title("Q4 I Contour plot - γ = 4")
 plt.xlabel("x1")
 plt.ylabel("x2")
 plt.legend()
 plt.show()
 
-num_iters = len(X1) + 1
-plt.plot(list(range(1, num_iters)), X1, color = 'blue', label='γ = 1')
-plt.plot(list(range(1, num_iters)), X2, color = 'red', label='γ = 4')
-plt.legend()
-plt.show()
+num_iters = 100
+(X1, F1) = gradDescent2InputForOverlay(q4fx_func1,dfq4fx_x1_1_func,dfq4fx_x2_1_func,num_iters,x0_start=1,x1_start=1,alpha=0.1)
+(X2, F2) = gradDescent2InputForOverlay(q4fx_func2,dfq4fx_x1_2_func,dfq4fx_x2_2_func,num_iters,x0_start=1,x1_start=1,alpha=0.1)
 
 num_iters = len(F1) + 1
 plt.plot(list(range(1, num_iters)), F1, color = 'blue', label='γ = 1')
 plt.plot(list(range(1, num_iters)), F2, color = 'red', label='γ = 4')
+plt.title("f(xk) vs Iteration")
+plt.xlabel("Iterations")
+plt.ylabel("f(xk)")
+plt.yscale("log")
+plt.legend()
+plt.show()
+
+
+x1s_1 = []
+x2s_1 = []
+for x1 in X1:
+    x1s_1.append(x1[0])
+    x2s_1.append(x1[1])
+x1s_2 = []
+x2s_2 = []
+for x1 in X2:
+    x1s_2.append(x1[0])
+    x2s_2.append(x1[1])
+plt.contour(x1_meshed, x2_meshed, y_values1)
+plt.plot(x1s_1, x2s_1, color = 'green', label='γ = 1')
+plt.title("Q4 I) Path overlay - γ = 1")
+plt.xlabel("x1")
+plt.ylabel("x2")
+plt.legend()
+plt.show()
+plt.contour(x1_meshed, x2_meshed, y_values2)
+plt.plot(x1s_2, x2s_2, color = 'red', label='γ = 4')
+plt.title("Q4 I) Path overlay - γ = 4")
+plt.xlabel("x1")
+plt.ylabel("x2")
 plt.legend()
 plt.show()
 
@@ -338,22 +397,23 @@ x2_vals = np.linspace(-1, 3, 100)
 num_iters = 100
 x1_meshed, x2_meshed = np.meshgrid(x1_vals, x2_vals)
 y_values = q4f2_func(x1_meshed, x2_meshed)
-plt.contour(x1_meshed, x2_meshed, y_values, colors='blue')
+plt.contour(x1_meshed, x2_meshed, y_values)
+plt.title("Rosenbrock function")
+plt.xlabel("x1")
+plt.ylabel("x2")
 plt.show()
 
 num_iters = 2000
 (X1, F1) = gradDescent2InputFast(q4f2_func,q4f2_df1_func,q4f2_df2_func,num_iters,x0_start=-1.25,x1_start=0.5,alpha=0.001)
 (X2, F2) = gradDescent2InputFast(q4f2_func,q4f2_df1_func,q4f2_df2_func,num_iters,x0_start=-1.25,x1_start=0.5,alpha=0.005)
 
-num_iters = len(X1) + 1
-plt.plot(list(range(1, num_iters)), X1, color = 'blue', label='γ = 1')
-plt.plot(list(range(1, num_iters)), X2, color = 'red', label='γ = 4')
-plt.legend()
-plt.show()
-
 num_iters = len(F1) + 1
 plt.plot(list(range(1, num_iters)), F1, color = 'blue', label='γ = 1')
 plt.plot(list(range(1, num_iters)), F2, color = 'red', label='γ = 4')
+plt.yscale('log')
+plt.title("f(xk) vs Iteration")
+plt.xlabel("Iterations")
+plt.ylabel("f(xk)")
 plt.legend()
 plt.show()
 
@@ -371,4 +431,7 @@ for x1 in X2:
 plt.plot(x1s_1, x2s_1, color = 'green', label='γ = 1')
 plt.plot(x1s_2, x2s_2, color = 'red', label='γ = 4')
 plt.legend()
+plt.title("Rosenbrock function - Paths overlay")
+plt.xlabel("x1")
+plt.ylabel("x2")
 plt.show()
